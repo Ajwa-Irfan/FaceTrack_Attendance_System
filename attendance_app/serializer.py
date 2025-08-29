@@ -1,6 +1,25 @@
 from .models import *
 from rest_framework import serializers
 import base64
+from django.contrib.auth import authenticate
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        email = data.get('email')
+        username = data.get('username')
+        password = data.get('password')
+
+        user = authenticate(email=email, username=username, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid Credentials")
+        
+        data['user'] = user
+        return data
+
 
 class MemberSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()

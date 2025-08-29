@@ -3,6 +3,7 @@ import uuid
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.models import User
 
 def protected_face_upload_path(instance, filename):
     # Unique and non-identifiable filename
@@ -28,21 +29,25 @@ class Member(models.Model):
     def __str__(self):
         return self.name
 
-# class Member(models.Model):
-#     name = models.CharField(max_length=50)
-#     email = models.EmailField(unique=True)
-#     image = models.ImageField(upload_to = 'faces/')
-#     encoding = models.BinaryField(null=True, blank=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return self.name
+class UserProfile(models.Model):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('user', 'User')
+    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     
 class Attendance(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
     check_in = models.DateTimeField(null=True, blank=True)
     check_out = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=10, choices=[
+        ('Present', 'Present'),
+        ('Absent', 'Absent'),
+        ('Late', 'Late'),
+        ('Leave', 'Leave'),
+    ])
 
     class Meta:
         unique_together = ('member','date')

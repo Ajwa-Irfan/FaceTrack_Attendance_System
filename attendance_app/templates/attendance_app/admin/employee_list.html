@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FaceTrack - Employees Attendance</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    :root {
+      --sidebar-bg: #1E293B;
+      --sidebar-active: #3B82F6;
+      --sidebar-text: #E2E8F0;
+      --sidebar-hover: #334155;
+      --main-bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --primary: #3B82F6;
+      --primary-dark: #2563EB;
+      --success: #10B981;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --info: #06B6D4;
+      --text-dark: #1E293B;
+      --text-gray: #64748B;
+      --text-light: #94A3B8;
+      --border-color: #E2E8F0;
+      --increase: #EF4444;
+      --decrease: #10B981;
+      --border-radius: 10px;
+      --transition: all 0.3s ease;
+      --shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+      --shadow-hover: 0 5px 12px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      background-color: var(--main-bg);
+      color: var(--text-dark);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .logo {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--sidebar-hover);
+      margin-bottom: 20px;
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo h1 i {
+      color: var(--sidebar-active);
+    }
+
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
+    }
+
+    .nav-item {
+      padding: 12px 20px;
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      border-left: 4px solid transparent;
+    }
+
+    .nav-item:hover {
+      background-color: var(--sidebar-hover);
+    }
+
+    .nav-item.active {
+      background-color: var(--sidebar-hover);
+      border-left-color: var(--sidebar-active);
+      color: white;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: inherit;
+      text-decoration: none;
+      width: 100%;
+    }
+
+    .nav-item i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .logout {
+      margin-top: auto;
+      padding: 20px;
+      border-top: 1px solid var(--sidebar-hover);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      padding: 10px;
+      transition: var(--transition);
+      border-radius: 4px;
+    }
+
+    .logout-btn:hover {
+      background-color: var(--sidebar-hover);
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .date-display {
+      color: var(--text-gray);
+      font-size: 14px;
+    }
+
+    /* Table Styles */
+    .table-container {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #111827;
+    }
+
+    thead {
+      background-color: #393972;
+    }
+
+    th {
+      padding: 12px 15px;
+      text-align: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid #d1d5db;
+    }
+
+    td {
+      padding: 12px 15px;
+      text-align: center;
+      border: 1px solid #d1d5db;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background-color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #ffffff;
+    }
+
+    /* Employee column styling */
+    td:first-child {
+      background-color: #f3f4f6;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .status-present {
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    .status-absent {
+      color: var(--danger);
+      font-weight: 500;
+    }
+
+    .status-late {
+      color: var(--warning);
+      font-weight: 500;
+    }
+
+    .employee-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .employee-link:hover {
+      text-decoration: underline;
+      color: var(--primary-dark);
+    }
+
+    /* Mobile Toggle */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 12px;
+      z-index: 1000;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .main-content {
+        padding: 25px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 220px;
+      }
+
+      .main-content {
+        margin-left: 220px;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 260px;
+        transition: var(--transition);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .date-display {
+        margin-top: 10px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="logo">
+            <h1>👨‍🏫 FaceTrack</h1>
+        </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="{% url 'admin_dashboard' %}">
+          <i class="fas fa-th-large"></i> <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'add_member' %}" class="nav-item" style="color: white; text-decoration: none;">
+          <i class="fas fa-user-plus mr-3"></i> Add Member
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'today_attendance' %}">
+          <i class="fas fa-calendar-check"></i> <span>Attendance</span>
+        </a>
+      </li>
+      <li class="nav-item active">
+        <a href="{% url 'employee_list' %}">
+          <i class="fas fa-users"></i> <span>Employees</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'live_display' %}">
+          <i class="fas fa-video"></i> <span>Live</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'logs' %}">
+          <i class="fas fa-history"></i> <span>Logs</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#reports">
+          <i class="fas fa-chart-bar"></i> <span>Reports</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="logout">
+      <a href="#logout" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Mobile Menu Toggle -->
+  <button class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="header">
+      <h1 class="page-title">Employees Attendance</h1>
+      <div class="date-display" id="currentDate">Monday, June 10, 2023</div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+
+        <tbody>
+          {% for emp in employees %}
+          <tr>
+            <td class="employee-cell">
+              <a href="{% url 'yearly_attendance' emp.id %}" class="employee-link">
+                {{ emp.name }}
+              </a>
+            </td>
+            <td class="employee-cell">
+              {% if emp.today_check_in %}
+              {{ emp.today_check_in }}
+              {% else %}
+              ✅ Not Checked In
+              {% endif %}
+            </td>
+            <td class="employee-cell">
+              {% if emp.today_check_out %}
+              {{ emp.today_check_out }}
+              {% else %}
+              --
+              {% endif %}
+            </td>
+            <td class="status-absent">
+              {% if emp.status == "early_in" %}
+              🌅 Early Check-In
+              {% elif emp.status == "on_time" %}
+              ✅ On Time
+              {% elif emp.status == "late_in" %}
+              ⏰ Late Check-In
+              {% elif emp.status == "early_out" %}
+              ⚠ Early Check-Out
+              {% elif emp.status == "valid_out" %}
+              ✅ Valid Check-Out
+              {% else %}
+              ✅ Absent
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center p-4">No employees found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+  </main>
+
+  <script>
+    // Set current date
+    function setCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Toggle mobile menu
+    document.getElementById('menuToggle').addEventListener('click', function () {
+      document.querySelector('.sidebar').classList.toggle('active');
+    });
+
+    // Handle navigation item clicks
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function () {
+        // Remove active class from all items
+        document.querySelectorAll('.nav-item').forEach(i => {
+          i.classList.remove('active');
+        });
+
+        // Add active class to clicked item
+        this.classList.add('active');
+      });
+    });
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function () {
+      setCurrentDate();
+    });
+  </script>
+</body>
+
+</html>
